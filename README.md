@@ -23,7 +23,8 @@ The core engine handles the $O(N^2)$ algorithmic complexity by calculating gravi
 1. Clone this repository to your local machine.
 2. Run the Python physics engine to generate the orbital data:
    ```bash
-   python main.py```
+   python main.py
+   ```
 (Note: Ensure your Python file containing the Body class and simulation logic is named main.py, or replace it with your actual file name).
 3. The script will calculate the orbits and generate a simulation_data.json file in the same directory.
 4. Open the simulasyon.html file using a local web server (e.g., Live Server extension in VS Code) to bypass browser CORS restrictions.
