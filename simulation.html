@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>N-Body Astrophysics Simulation</title>
+    <style>
+        body { 
+            margin: 0; 
+            background-color: #0A1128; 
+            color: #E2E8F0; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            height: 100vh; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        h2 { margin-bottom: 20px; color: #3B82F6; }
+        
+        canvas { 
+            background-color: #050814; 
+            border: 1px solid rgba(59, 130, 246, 0.3); 
+            border-radius: 8px; 
+            box-shadow: 0 0 30px rgba(59, 130, 246, 0.15); 
+        }
+        
+        .controls { margin-top: 20px; }
+        
+        button { 
+            padding: 10px 20px; 
+            background-color: transparent; 
+            color: #3B82F6; 
+            border: 2px solid #3B82F6; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            transition: all 0.3s ease;
+        }
+        
+        button:hover { 
+            background-color: #3B82F6; 
+            color: #0A1128; 
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Gravity & Orbit Simulation</h2>
+    <canvas id="spaceCanvas" width="800" height="600"></canvas>
+    
+    <div class="controls">
+        <button onclick="startAnimation()">Restart Simulation</button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('spaceCanvas');
+        const ctx = canvas.getContext('2d');
+        let simulationData = [];
+        let currentFrame = 0;
+        let animationId;
+
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+
+        async function loadData() {
+            try {
+                const response = await fetch('simulation_data.json');
+                simulationData = await response.json();
+                startAnimation();
+            } catch (error) {
+                console.error("Veri yüklenemedi:", error);
+                ctx.fillStyle = "#EF4444";
+                ctx.font = "16px Arial";
+                ctx.fillText("Hata: simulation_data.json bulunamadı.", 50, 50);
+                ctx.fillText("Eğer lokalde çalışıyorsan VS Code 'Live Server' eklentisini kullanmalısın.", 50, 80);
+            }
+        }
+
+        function drawFrame(frameData) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            frameData.forEach(body => {
+                ctx.beginPath();
+                
+                let radius = body.name === "Sun" ? 18 : 8;
+                
+                let drawX = centerX + body.x;
+                let drawY = centerY - body.y;
+
+                ctx.arc(drawX, drawY, radius, 0, Math.PI * 2);
+                ctx.fillStyle = body.color;
+                ctx.fill();
+                ctx.closePath();
+
+                ctx.fillStyle = "rgba(226, 232, 240, 0.8)";
+                ctx.font = "12px Arial";
+                ctx.fillText(body.name, drawX + 15, drawY - 10);
+            });
+        }
+
+        function animate() {
+            if (currentFrame < simulationData.length) {
+                drawFrame(simulationData[currentFrame]);
+                currentFrame++;
+                animationId = requestAnimationFrame(animate); 
+            } else {
+                currentFrame = 0;
+                animationId = requestAnimationFrame(animate);
+            }
+        }
+
+        function startAnimation() {
+            if (animationId) cancelAnimationFrame(animationId);
+            currentFrame = 0;
+            animate();
+        }
+
+        window.onload = loadData;
+    </script>
+</body>
+</html>
